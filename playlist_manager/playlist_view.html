@@ -1,0 +1,68 @@
+<html>
+{% import os %}
+{% import app %}
+
+<head>
+  <title>Playlist</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <style>
+    .reorder-button {
+      font-weight: bolder;
+    }
+
+    .track-li {
+      padding: 4;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Hello</h1>
+  <p>
+    <button onclick="applyReorder()">Apply reorder</button>
+  </p>
+  <ol id="track-ol">
+    {% for index, track in enumerate(track_list) %}
+    <li class="track-li">
+      <button class="up">&#8593;</button>
+      <button class="down">&#8595;</button>
+      {{ track }}
+    </li>
+    {% end %}
+  </ol>
+</body>
+
+<script>
+  $(function () {
+    $('.up').on('click', function (e) {
+      var wrapper = $(this).closest('li')
+      wrapper.insertBefore(wrapper.prev())
+    })
+    $('.down').on('click', function (e) {
+      var wrapper = $(this).closest('li')
+      wrapper.insertAfter(wrapper.next())
+    })
+  })
+
+  getCurrentList = () => {
+    let listItems = $('#track-ol').children('.track-li').text().matchAll(/[0-9]{3}.+\.mp3/g);
+    let songNumbers = [...listItems].map(e => Number(e[0].substring(0, 3)));
+    return songNumbers;
+  }
+
+  applyReorder = () => {
+    let query = getCurrentList().join(',');
+    let address = window.location.href + query;
+    console.log(address);
+    fetch(address, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+      .then((_) => location.reload());
+
+  }
+</script>
+
+</html>
